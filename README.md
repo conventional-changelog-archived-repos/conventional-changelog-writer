@@ -54,6 +54,7 @@ conventionalCommitsTemplate(version, context, options);
 
 It expects an object mode upstream and the object should look something like this:
 
+```js
 { hash: '9b1aff905b638aa274a5fc8f88662df446d374bd',
   header: 'feat(scope): broadcast $destroy event on scope destruction',
   type: 'feat',
@@ -72,6 +73,7 @@ It expects an object mode upstream and the object should look something like thi
   footer: 'BREAKING CHANGE: some breaking change',
   notes: [ { title: 'BREAKING CHANGE', text: 'some breaking change' } ],
   references: [] }
+```
 
 Each chunk should be a commit. Json object is also **valid**.
 
@@ -231,7 +233,7 @@ Partials that used in the main template, if any. The key should be the partial n
 
 ## Customization Guide
 
-It is possible to customize this the changelog to suit your needs. Templates are written in [handlebar](http://handlebarsjs.com). You can customize all partials or the whole template. Template variables are from either `upstream` or `context`. The followings are a suggested way of defining variables.
+It is possible to customize this the changelog to suit your needs. Templates are written in [handlebars](http://handlebarsjs.com). You can customize all partials or the whole template. Template variables are from either `upstream` or `context`. The followings are a suggested way of defining variables.
 
 ### upstream
 
@@ -241,7 +243,7 @@ Variables in upstream are commit specific and should be used per commit. Eg: *co
 
 context should be module specific and can be used across the whole log. Thus these variables should not be related to any single commit and should be generic information of the module or all commits. Eg: *repository url* and *author names*, etc. You can think of them as "global" or "root" variables.
 
-Basically you can make your own templates and define all your template variables. This module can iterate the commits and compile them. For more details, please checkout [handlebar](http://handlebarsjs.com) and the source code of this module.
+Basically you can make your own templates and define all your template variables. This module can iterate the commits and compile them. For more details, please checkout [handlebars](http://handlebarsjs.com) and the source code of this module.
 
 
 ## CLI
