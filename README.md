@@ -210,7 +210,7 @@ The string can be a dot path to a nested object property.
 
 Type: `string` Default: [template.hbs](templates/template.hbs)
 
-The main handlebar template.
+The main handlebars template.
 
 ##### headerPartial
 
@@ -228,12 +228,12 @@ Type: `string` Default: [footer.hbs](templates/footer.hbs)
 
 Type: `object`
 
-Partials that used in the main template, if any. The key should be the partial name and the value should be handlebar template strings. **NOTE**: This value will overwrite `headerPartial`, `commitPartial` and `footerPartial`. If you are using handlebar template files, read files by yourself.
+Partials that used in the main template, if any. The key should be the partial name and the value should be handlebars template strings. **NOTE**: This value will overwrite `headerPartial`, `commitPartial` and `footerPartial`. If you are using handlebars template files, read files by yourself.
 
 
 ## Customization Guide
 
-It is possible to customize this the changelog to suit your needs. Templates are written in [handlebars](http://handlebarsjs.com). You can customize all partials or the whole template. Template variables are from either `upstream` or `context`. The followings are a suggested way of defining variables.
+It is possible to customize this the changelog to suit your needs. Templates are written in [handlebars](http://handlebarsjs.com). You can customize all partials or the whole template. Template variables are from either `upstream` or `context`. The following are a suggested way of defining variables.
 
 ### upstream
 
