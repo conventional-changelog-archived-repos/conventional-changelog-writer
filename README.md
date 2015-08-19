@@ -144,7 +144,7 @@ Replace with new values in each commit.
 
 If this is an object, the keys are paths to a nested object property. the values can be a string (static) and a function (dynamic) with the old value and path passed as arguments. This value is merged with your own transform object.
 
-If this is a function, the commit chunk will be passed as the argument and the returned value would be the new commit object. This is a handy function if you can't provide a transform stream as an upstream of this one. If returns a falsy value this commit is ignored.
+If this is a function, the commit chunk will be passed as the argument and the returned value would be the new commit object. If the result object of the function is a Promise this will wait until it's resolved to continue the stream. This is a handy function if you can't provide a transform stream as an upstream of this one. If returns a falsy value this commit is ignored.
 
 a `raw` object that is originally poured form upstream is attached to `commit`.
 
