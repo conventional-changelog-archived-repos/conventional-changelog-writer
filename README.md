@@ -148,6 +148,26 @@ If this is a function, the commit chunk will be passed as the argument and the r
 
 a `raw` object that is originally poured form upstream is attached to `commit`.
 
+So you can have your transform function doing some sync transformation like this:
+```
+  function transform(commit) {
+    commit.subject = commit.subject + ' changed by transform function.';
+  
+    return commit;
+  }
+```
+or some async transformation like this:
+```
+  function transform(commit) {
+    return callSomeAsyncFunctionThatReturnsAPromise()
+      .then(function(resultOfAsyncCall) {
+        commit.subject = resultOfAsyncCall.title;
+        
+        return commit;
+      });
+  }
+```
+
 ##### groupBy
 
 Type: `string` Default: `'type'`
