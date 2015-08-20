@@ -7,7 +7,7 @@ var semverValid = require('semver').valid;
 var through = require('through2');
 var util = require('./lib/util');
 var _ = require('lodash');
-var Q = require('q');
+var q = require('q');
 
 function conventionalChangelogWriter(context, options) {
   var savedKeyCommit;
@@ -85,10 +85,12 @@ function conventionalChangelogWriter(context, options) {
   return through.obj(function(chunk, enc, cb) {
     try {
       var result;
-      var commit = Q(util.processCommit(chunk, options.transform));
-      var keyCommit = commit || chunk;
+      var commitPromise = q(util.processCommit(chunk, options.transform));
+      var self = this;
 
-      commit.then(function (commit) {
+      commitPromise.then(function(commit) {
+        var keyCommit = commit || chunk;
+
         // previous blocks of logs
         if (options.reverse) {
           if (commit) {
@@ -98,12 +100,12 @@ function conventionalChangelogWriter(context, options) {
           if (generateOn(keyCommit)) {
             result = util.generate(options, commits, context, keyCommit);
             if (options.includeDetails) {
-              this.push({
+              self.push({
                 log: result,
                 keyCommit: keyCommit
               });
             } else {
-              this.push(result);
+              self.push(result);
             }
 
             commits = [];
@@ -112,12 +114,12 @@ function conventionalChangelogWriter(context, options) {
           if (generateOn(keyCommit)) {
             result = util.generate(options, commits, context, savedKeyCommit);
             if (options.includeDetails) {
-              this.push({
+              self.push({
                 log: result,
                 keyCommit: savedKeyCommit
               });
             } else {
-              this.push(result);
+              self.push(result);
             }
 
             commits = [];
