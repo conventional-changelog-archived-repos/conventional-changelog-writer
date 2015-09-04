@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 var map = require('lodash').map;
 var through = require('through2');
 var today = require('dateformat')(new Date(), 'yyyy-mm-dd', true);
+var q = require('q');
 
 describe('conventionalChangelogWriter', function() {
   function getStream() {
@@ -278,6 +279,29 @@ describe('conventionalChangelogWriter', function() {
           transform: function(commit) {
             commit.version = '1.0.0';
             return commit;
+          }
+        }))
+        .pipe(through(function(chunk, enc, cb) {
+          expect(chunk.toString()).to.contain('# 1.0.0 ');
+
+          i++;
+          cb(null);
+        }, function() {
+          expect(i).to.equal(5);
+          done();
+        }));
+    });
+
+    it('should generate on the async transformed commit', function(done) {
+      var i = 0;
+
+      getStream()
+        .pipe(conventionalChangelogWriter({
+          version: '1.0.0'
+        }, {
+          transform: function(commit) {
+            commit.version = '1.0.0';
+            return q(commit);
           }
         }))
         .pipe(through(function(chunk, enc, cb) {
