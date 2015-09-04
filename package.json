@@ -29,7 +29,8 @@
     "meow": "^3.3.0",
     "semver": "^5.0.1",
     "split": "^1.0.0",
-    "through2": "^2.0.0"
+    "through2": "^2.0.0",
+    "q": "^1.4.1"
   },
   "devDependencies": {
     "chai": "^3.0.0",
