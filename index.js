@@ -7,6 +7,7 @@ var semverValid = require('semver').valid;
 var through = require('through2');
 var util = require('./lib/util');
 var _ = require('lodash');
+var q = require('q');
 
 function conventionalChangelogWriter(context, options) {
   var savedKeyCommit;
@@ -84,50 +85,54 @@ function conventionalChangelogWriter(context, options) {
   return through.obj(function(chunk, enc, cb) {
     try {
       var result;
-      var commit = util.processCommit(chunk, options.transform);
-      var keyCommit = commit || chunk;
+      var commitPromise = q(util.processCommit(chunk, options.transform));
+      var self = this;
 
-      // previous blocks of logs
-      if (options.reverse) {
-        if (commit) {
-          commits.push(commit);
-        }
+      commitPromise.then(function(commit) {
+        var keyCommit = commit || chunk;
 
-        if (generateOn(keyCommit)) {
-          result = util.generate(options, commits, context, keyCommit);
-          if (options.includeDetails) {
-            this.push({
-              log: result,
-              keyCommit: keyCommit
-            });
-          } else {
-            this.push(result);
+        // previous blocks of logs
+        if (options.reverse) {
+          if (commit) {
+            commits.push(commit);
           }
 
-          commits = [];
-        }
-      } else {
-        if (generateOn(keyCommit)) {
-          result = util.generate(options, commits, context, savedKeyCommit);
-          if (options.includeDetails) {
-            this.push({
-              log: result,
-              keyCommit: savedKeyCommit
-            });
-          } else {
-            this.push(result);
+          if (generateOn(keyCommit)) {
+            result = util.generate(options, commits, context, keyCommit);
+            if (options.includeDetails) {
+              self.push({
+                log: result,
+                keyCommit: keyCommit
+              });
+            } else {
+              self.push(result);
+            }
+
+            commits = [];
+          }
+        } else {
+          if (generateOn(keyCommit)) {
+            result = util.generate(options, commits, context, savedKeyCommit);
+            if (options.includeDetails) {
+              self.push({
+                log: result,
+                keyCommit: savedKeyCommit
+              });
+            } else {
+              self.push(result);
+            }
+
+            commits = [];
+            savedKeyCommit = keyCommit;
           }
 
-          commits = [];
-          savedKeyCommit = keyCommit;
+          if (commit) {
+            commits.push(commit);
+          }
         }
+        cb();
+      });
 
-        if (commit) {
-          commits.push(commit);
-        }
-      }
-
-      cb();
     } catch (err) {
       cb(err);
     }
