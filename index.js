@@ -7,6 +7,7 @@ var semverValid = require('semver').valid;
 var through = require('through2');
 var util = require('./lib/util');
 var _ = require('lodash');
+var q = require('q');
 
 function conventionalChangelogWriter(context, options) {
   var savedKeyCommit;
@@ -84,7 +85,10 @@ function conventionalChangelogWriter(context, options) {
   return through.obj(function(chunk, enc, cb) {
     try {
       var result;
-      var commit = util.processCommit(chunk, options.transform);
+      var commitPromise = q(util.processCommit(chunk, options.transform));
+      var self = this;
+
+      commitPromise.then(function(commit) {
       var keyCommit = commit || chunk;
 
       // previous blocks of logs
@@ -96,12 +100,12 @@ function conventionalChangelogWriter(context, options) {
         if (generateOn(keyCommit)) {
           result = util.generate(options, commits, context, keyCommit);
           if (options.includeDetails) {
-            this.push({
+              self.push({
               log: result,
               keyCommit: keyCommit
             });
           } else {
-            this.push(result);
+              self.push(result);
           }
 
           commits = [];
@@ -110,12 +114,12 @@ function conventionalChangelogWriter(context, options) {
         if (generateOn(keyCommit)) {
           result = util.generate(options, commits, context, savedKeyCommit);
           if (options.includeDetails) {
-            this.push({
+              self.push({
               log: result,
               keyCommit: savedKeyCommit
             });
           } else {
-            this.push(result);
+              self.push(result);
           }
 
           commits = [];
@@ -128,6 +132,8 @@ function conventionalChangelogWriter(context, options) {
       }
 
       cb();
+      });
+
     } catch (err) {
       cb(err);
     }
