@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 var map = require('lodash').map;
 var through = require('through2');
 var today = require('dateformat')(new Date(), 'yyyy-mm-dd', true);
+var q = require('q');
 
 describe('conventionalChangelogWriter', function() {
   function getStream() {
@@ -291,6 +292,29 @@ describe('conventionalChangelogWriter', function() {
         }));
     });
 
+    it('should generate on the async transformed commit', function(done) {
+      var i = 0;
+
+      getStream()
+        .pipe(conventionalChangelogWriter({
+          version: '1.0.0'
+        }, {
+          transform: function(commit) {
+            commit.version = '1.0.0';
+            return q(commit);
+          }
+        }))
+        .pipe(through(function(chunk, enc, cb) {
+          expect(chunk.toString()).to.contain('# 1.0.0 ');
+
+          i++;
+          cb(null);
+        }, function() {
+          expect(i).to.equal(5);
+          done();
+        }));
+    });
+
     describe('when commits are not reversed', function() {
       it('should generate on `\'version\'` if it\'s a valid semver', function(done) {
         var i = 0;
@@ -557,6 +581,19 @@ describe('conventionalChangelogWriter', function() {
       .pipe(conventionalChangelogWriter({}, {
         transform: function() {
           return undefined.a;
+        }
+      }))
+      .on('error', function(err) {
+        expect(err).to.be.ok; // jshint ignore:line
+        done();
+      });
+  });
+
+  it('should callback with error on transform with rejected promise', function(done) {
+    getStream()
+      .pipe(conventionalChangelogWriter({}, {
+        transform: function() {
+          return q.reject('error with promise');
         }
       }))
       .on('error', function(err) {
