@@ -589,11 +589,11 @@ describe('conventionalChangelogWriter', function() {
       });
   });
 
-  it('should callback with error on transform with rejected promise', function(done) {
+  it.only('should callback with error on transform with rejected promise', function(done) {
     getStream()
       .pipe(conventionalChangelogWriter({}, {
         transform: function() {
-          return q.reject(error);
+          return q.reject('error with promise');
         }
       }))
       .on('error', function(err) {
