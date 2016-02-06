@@ -6,6 +6,7 @@ var semverValid = require('semver').valid;
 var through = require('through2');
 var util = require('./lib/util');
 var _ = require('lodash');
+var q = require('q');
 
 function conventionalChangelogWriter(context, options) {
   var savedKeyCommit;
@@ -80,9 +81,18 @@ function conventionalChangelogWriter(context, options) {
   options.notesSort = util.functionify(options.notesSort);
 
   return through.obj(function(chunk, enc, cb) {
+    var result;
+    var self = this;
+    var commitPromise;
+
     try {
-      var result;
-      var commit = util.processCommit(chunk, options.transform);
+      commitPromise = q(util.processCommit(chunk, options.transform));
+    } catch (error) {
+      cb(error);
+      return;
+    }
+
+    commitPromise.then(function(commit) {
       var keyCommit = commit || chunk;
 
       // previous blocks of logs
@@ -94,12 +104,12 @@ function conventionalChangelogWriter(context, options) {
         if (generateOn(keyCommit, commits, context, options)) {
           result = util.generate(options, commits, context, keyCommit);
           if (options.includeDetails) {
-            this.push({
+            self.push({
               log: result,
               keyCommit: keyCommit
             });
           } else {
-            this.push(result);
+            self.push(result);
           }
 
           commits = [];
@@ -108,12 +118,12 @@ function conventionalChangelogWriter(context, options) {
         if (generateOn(keyCommit, commits, context, options)) {
           result = util.generate(options, commits, context, savedKeyCommit);
           if (options.includeDetails) {
-            this.push({
+            self.push({
               log: result,
               keyCommit: savedKeyCommit
             });
           } else {
-            this.push(result);
+            self.push(result);
           }
 
           commits = [];
@@ -126,9 +136,9 @@ function conventionalChangelogWriter(context, options) {
       }
 
       cb();
-    } catch (err) {
+    }).catch(function(err) {
       cb(err);
-    }
+    });
   }, function(cb) {
     if (!options.doFlush) {
       cb(null);
