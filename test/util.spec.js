@@ -42,6 +42,130 @@ describe('util', function() {
 
       expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
     });
+    describe('helpers', function() {
+      describe('ifCond', function() {
+        it('should work with "Equal" (===)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "github" "===" "bitbucket"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial3\n');
+        });
+        it('should work with "Lower Than" (<)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "3" "<" "3"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial3\n');
+        });
+        it('should work with Lower Than Equal (<=)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "2" "<=" "2"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
+        });
+        it('should work with Greater Than (>)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "2" ">" "2"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial3\n');
+        });
+        it('should work with Greater Than Equal (>=)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "4" ">=" "2"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
+        });
+        it('should work with "AND" (&&)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "truthy" "&&" ""}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial3\n');
+        });
+        it('should work with "OR" (||)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "" "||" "truthy"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
+        });
+        it('should work with "Regular Expression" (.match)', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "https://github.com" "regex" "github"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
+        });
+      });
+    });
   });
 
   describe('functionify', function() {
