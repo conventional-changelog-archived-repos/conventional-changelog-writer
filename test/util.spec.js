@@ -164,6 +164,21 @@ describe('util', function() {
 
           expect(compiled()).to.equal('partial1\npartial2\npartial3\n');
         });
+        it('should work with the default fallback', function() {
+          var templates = {
+            mainTemplate: '{{> partial1}}{{> partial2}}{{> partial3}}',
+            partials: {
+              partial1: 'partial1\n',
+              partial2: '{{#ifCond "github" "==" "github"}}partial2\n{{/ifCond}}',
+              partial3: 'partial3\n',
+              partial4: null
+            }
+          };
+
+          var compiled = util.compileTemplates(templates);
+
+          expect(compiled()).to.equal('partial1\npartial3\n');
+        });
       });
     });
   });
